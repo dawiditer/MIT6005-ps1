@@ -3,8 +3,11 @@
  */
 package twitter;
 
+import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Extract consists of methods that extract information from a list of tweets.
@@ -24,9 +27,28 @@ public class Extract {
      *         every tweet in the list.
      */
     public static Timespan getTimespan(List<Tweet> tweets) {
-        throw new RuntimeException("not implemented");
+        assert tweets != null;
+        
+        List<Tweet> sortedTweets = sortByTimestamp(tweets);
+        Instant start = sortedTweets.get(0).getTimestamp();
+        Instant end = sortedTweets.get(sortedTweets.size() -1).getTimestamp();
+        
+        return new Timespan(start, end);
     }
-
+    // Helper method
+    /** Sorts a list of tweets by timestamp, from earliest to latest*/
+    private static List<Tweet> sortByTimestamp(List<Tweet> tweets) {
+        assert tweets != null;
+        Comparator<Tweet> byTimestamp = new Comparator<Tweet>() {
+            @Override public int compare(Tweet tweet1, Tweet tweet2) {
+                return tweet1.getTimestamp().compareTo(tweet2.getTimestamp());
+            }            
+        };
+        
+        return tweets.stream()
+                .sorted(byTimestamp)
+                .collect(Collectors.toList());
+    }
     /**
      * Get usernames mentioned in a list of tweets.
      * 
