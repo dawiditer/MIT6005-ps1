@@ -75,6 +75,7 @@ public class FilterTest {
         assertTrue("expected list to contain tweets by author", 
                 writtenBy.containsAll(Arrays.asList(tweet3, tweet1)));
     }
+    
     // Tests for inTimespan()
     @Test
     // covers tweets.size > 1,
