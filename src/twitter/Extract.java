@@ -5,8 +5,11 @@ package twitter;
 
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +42,7 @@ public class Extract {
     /** Sorts a list of tweets by timestamp, from earliest to latest*/
     private static List<Tweet> sortByTimestamp(List<Tweet> tweets) {
         assert tweets != null;
+        
         Comparator<Tweet> byTimestamp = new Comparator<Tweet>() {
             @Override public int compare(Tweet tweet1, Tweet tweet2) {
                 return tweet1.getTimestamp().compareTo(tweet2.getTimestamp());
@@ -65,7 +69,24 @@ public class Extract {
      *         include a username at most once.
      */
     public static Set<String> getMentionedUsers(List<Tweet> tweets) {
-        throw new RuntimeException("not implemented");
+        assert tweets != null;
+        
+        Set<String> mentionedUsers = new HashSet<>();
+        String validMentionRegex = "\\B@[a-zA-Z0-9_-]+\\b";
+        Pattern p = Pattern.compile(validMentionRegex);
+        
+        for (Tweet tweet: tweets) {
+            String text = tweet.getText();
+            Matcher m = p.matcher(text);
+            
+            while (m.find()) {
+                String userMentioned = m.group().substring(1).toLowerCase();
+                mentionedUsers.add(userMentioned);
+            }
+        }
+        
+        assert mentionedUsers != null;
+        return mentionedUsers;
     }
 
 }
