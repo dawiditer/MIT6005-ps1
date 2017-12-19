@@ -1,5 +1,5 @@
 # MIT6005-ps1 
-<a href="ocw.mit.edu/ans7870/6/6.005/s16/psets/ps1/index.html">Problem Set 1: Tweet Tweet</a>
+<a href="ocw.mit.edu/ans7870/6/6.005/s16/psets/ps1/">Problem Set 1: Tweet Tweet</a>
 
 The purpose of this problem set is to give you practice with test-first programming. 
 Given a set of specifications, you will write unit tests that check for compliance with the specifications, 
