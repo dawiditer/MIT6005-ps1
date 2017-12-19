@@ -3,9 +3,13 @@
  */
 package twitter;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * SocialNetwork provides methods that operate on a social network.
@@ -41,9 +45,24 @@ public class SocialNetwork {
      *         either authors or @-mentions in the list of tweets.
      */
     public static Map<String, Set<String>> guessFollowsGraph(List<Tweet> tweets) {
-        throw new RuntimeException("not implemented");
+        // TODO: better implementation
+        Map<String, Set<String>> followsGraph = new HashMap<>();
+        
+        Set<String> authors = tweets.stream()
+                    .map(Tweet::getAuthor)
+                    .map(String::toLowerCase)
+                    .distinct()
+                    .collect(Collectors.toSet());
+        
+        for (String author: authors) {
+            List<Tweet> tweetsByAuthor = Filter.writtenBy(tweets, author);
+            Set<String> mentionsByAuthor = Extract.getMentionedUsers(tweetsByAuthor);
+            mentionsByAuthor.remove(author);
+            followsGraph.put(author, mentionsByAuthor);
+        }
+        
+        return followsGraph;
     }
-
     /**
      * Find the people in a social network who have the greatest influence, in
      * the sense that they have the most followers.
@@ -54,7 +73,27 @@ public class SocialNetwork {
      *         descending order of follower count.
      */
     public static List<String> influencers(Map<String, Set<String>> followsGraph) {
-        throw new RuntimeException("not implemented");
+        // TODO: still convinced there's a relatively easier way
+        Map<String, Integer> followeesCount = new HashMap<>();
+        List<String> influencers = new ArrayList<>();
+        
+        for (Set<String> followees: followsGraph.values()) {
+            for (String followee: followees) {
+                String followeeLower = followee.toLowerCase();
+                followeesCount.putIfAbsent(followeeLower, 0);
+                followeesCount.put(followeeLower, followeesCount.get(followeeLower) + 1);
+                if (!influencers.contains(followeeLower)) {
+                    influencers.add(followeeLower);
+                }
+            }
+        }
+        influencers.sort(new Comparator<String>() {
+            @Override public int compare(String o1, String o2) {
+                return followeesCount.get(o2).compareTo(followeesCount.get(o1));
+            }
+            
+        });
+        return influencers;
     }
 
 }

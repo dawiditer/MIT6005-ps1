@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.junit.Test;
 
@@ -78,30 +77,30 @@ public class SocialNetworkTest {
     //        mentions = 1
     public void testGuessFollowsGraph_OneMention() {
         Map<String, Set<String>> followsGraph = SocialNetwork.guessFollowsGraph(Arrays.asList(tweet4));
-        Set<String> followees = followsGraph.keySet();
-        String followeesString = followees.toString().toLowerCase();
+        Set<String> followers = followsGraph.keySet();
+        String followersString = followers.toString().toLowerCase();
         
-        assertNotEquals("Expected map to have at least one user", 
+        assertNotEquals("Expected map to have at least one follower", 
                 Collections.emptySet(), followsGraph);
-        assertTrue("Expected map to have no more than two users", 
+        assertTrue("Expected map to have no more than two followers", 
                 followsGraph.size() <= 2);
-        assertTrue("Expected user mentioned to be in map", followeesString.contains("andy"));
+        assertTrue("Expected user mentioned to be in map", followersString.contains("mike"));
         
-        if (followees.size() == 2) {
-            assertTrue("Expected follower in map", followeesString.contains("mike"));
+        if (followers.size() == 2) {
+            assertTrue("Expected followee in map", followersString.contains("andy"));
         }
-        for (String user: followees) {
-          Set<String> followers = followsGraph.get(user);
+        for (String user: followers) {
+          Set<String> followees = followsGraph.get(user);
           
-          assertFalse("Expected user not to follow self", followers.contains(user));
+          assertFalse("Expected user not to follow self", followees.contains(user));
           
-          if (user.equalsIgnoreCase("andy")) {
-              assertEquals("Expected user to have one follower", 1, followers.size());
-              assertEquals("Expected correct follower", 
-                      followers.toString().toLowerCase().contains("mike"));
-          } else if (user.equalsIgnoreCase("mike")) {
-              assertTrue("Expected andy to have at most one follower", 
-                      followers.size() <= 1);
+          if (user.equalsIgnoreCase("mike")) {
+              assertEquals("Expected user to follow one person", 1, followees.size());
+              assertTrue("Expected correct followee", 
+                      followees.toString().toLowerCase().contains("andy"));
+          } else if (user.equalsIgnoreCase("andy")) {
+              assertTrue("Expected andy to follow at most one person", 
+                      followees.size() <= 1);
           } else {
               fail("Incorrect usernames in map");
           }
@@ -115,24 +114,24 @@ public class SocialNetworkTest {
         Map<String, Set<String>> followsGraph = 
                 SocialNetwork.guessFollowsGraph(Arrays.asList(tweet1,tweet2,tweet3,tweet4));
         
-        assertNotEquals("Expected map to have at least one user", 
+        assertNotEquals("Expected map to have at least one follower", 
                 Collections.emptySet(), followsGraph);
-        assertTrue("Expected map to have no more than three users", 
+        assertTrue("Expected map to have no more than three followers", 
                 followsGraph.size() <= 3);
         for (String user: followsGraph.keySet()) {
-            Set<String> followers = followsGraph.get(user);
+            Set<String> followees = followsGraph.get(user);
             
-            assertFalse("Expected user not to follow self", followers.contains(user));
+            assertFalse("Expected user not to follow self", followees.contains(user));
             
-            if (user.equalsIgnoreCase("mike")) {
-                assertEquals("Expected user to have 2 followers", 2, followers.size());
-            } else if (user.equalsIgnoreCase("jane")) {
-                assertTrue("Expected user to have at least 1 follower", 1 <= followers.size());
-                assertTrue("Expected andy to be jane's follower",
-                        followers.toString().toLowerCase().contains("andy"));
-                assertTrue("Expected user to have at most 2 followers", followers.size() <= 2);
+            if (user.equalsIgnoreCase("jane")) {
+                assertEquals("Expected user to follow 2 people", 2, followees.size());
+            } else if (user.equalsIgnoreCase("mike")) {
+                assertTrue("Expected user to have at least 1 follower", 1 <= followees.size());
+                assertTrue("Expected andy to be mik'es follower",
+                        followees.toString().toLowerCase().contains("andy"));
+                assertTrue("Expected user to have at most 2 followers", followees.size() <= 2);
             } else if (user.equalsIgnoreCase("andy")) {
-                assertEquals("Expected user to have 2 followers", 2, followers.size());
+                assertEquals("Expected user to follow 2 people", 2, followees.size());
             } else {
                 fail("Incorrect usernames in map");
             }
@@ -146,7 +145,7 @@ public class SocialNetworkTest {
         Map<String, Set<String>> followsGraph = new HashMap<>();
         List<String> influencers = SocialNetwork.influencers(followsGraph);
         
-        assertEquals("expected empty list", Collections.emptySet(), influencers);
+        assertEquals("expected empty list", Collections.emptyList(), influencers);
     }
     @Test
     // covers followsGraph.size 1, > 1
@@ -170,7 +169,8 @@ public class SocialNetworkTest {
         assertNotEquals("Expected non-empty list", Collections.emptyList(), influencers);
         assertEquals("Expected three followees", 3, influencers.size());
         assertTrue("Expected topmost influencer to have the most followers", 
-                influencers.get(0).equalsIgnoreCase("andy"));
+                influencers.get(0).equalsIgnoreCase("andy")
+                || influencers.get(0).equalsIgnoreCase("mike"));
         assertTrue("Expected lowest influencer to have the least number of followers", 
                 influencers.get(2).equalsIgnoreCase("jane"));
     }
